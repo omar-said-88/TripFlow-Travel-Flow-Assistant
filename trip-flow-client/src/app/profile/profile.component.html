@@ -1,0 +1,335 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- NAVBAR                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<nav class="navbar">
+  <div class="navbar__inner">
+
+    <!-- Logo -->
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+
+    <!-- Links (desktop) -->
+    <ul class="navbar__links" [class.navbar__links--open]="mobileMenuOpen">
+      <li><a routerLink="/">Home</a></li>
+      <li><a routerLink="/hotel-results">Destinations</a></li>
+      <li><a routerLink="/profile" class="navbar__link--active">Profile</a></li>
+    </ul>
+
+    <!-- Right actions -->
+    <div class="navbar__actions">
+      <!-- Avatar dropdown -->
+      <div class="avatar-menu">
+        <button class="avatar-menu__trigger" (click)="toggleAvatarDropdown()" title="Account menu" [title]="'Account menu for ' + user.fullName" [attr.aria-label]="'Account menu for ' + user.fullName">
+          <img [src]="user.avatarUrl" [alt]="user.fullName" title="User avatar" [title]="user.fullName" />
+          <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="avatar-menu__dropdown" *ngIf="avatarDropdownOpen">
+          <div class="avatar-menu__header">
+            <strong>{{ user.fullName }}</strong>
+            <span>{{ user.email }}</span>
+          </div>
+          <ul>
+            <li><a routerLink="/profile"><i class="fa-solid fa-user"></i> My Profile</a></li>
+            <li><a href="#"><i class="fa-solid fa-gear"></i> Settings</a></li>
+            <li class="avatar-menu__divider"></li>
+            <li><a routerLink="/login"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Hamburger -->
+      <button class="navbar__hamburger" (click)="toggleMobileMenu()" aria-label="Menu">
+        <i [class]="mobileMenuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PAGE CONTENT                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="profile-page">
+  <div class="profile-page__container">
+
+    <!-- ────────────────────────────────────────── -->
+    <!-- LEFT SIDEBAR                               -->
+    <!-- ────────────────────────────────────────── -->
+    <button class="sidebar-toggle" (click)="mobileSidebarOpen = !mobileSidebarOpen">
+      <i class="fa-solid fa-bars"></i> Menu
+    </button>
+
+    <aside class="sidebar" [class.sidebar--open]="mobileSidebarOpen">
+
+      <!-- Profile card -->
+      <div class="sidebar__card">
+        <div class="sidebar__avatar">
+          <img [src]="user.avatarUrl" [alt]="user.fullName" title="User avatar" [title]="user.fullName" />
+          <button class="sidebar__avatar-edit" aria-label="Change photo">  
+            <i class="fa-solid fa-camera"></i>
+          </button>
+        </div>
+        <h3 class="sidebar__name">{{ user.fullName }}</h3>
+        <span class="sidebar__member">Member since {{ user.memberSince }}</span>
+      </div>
+
+      <!-- Sidebar nav -->
+      <nav class="sidebar__nav">
+        <button
+          *ngFor="let item of sidebarItems"
+          class="sidebar__nav-item"
+          [class.sidebar__nav-item--active]="activeSection === item.key"
+          (click)="setActiveSection(item.key)"
+        >
+          <i [class]="item.icon"></i>
+          <span>{{ item.label }}</span>
+          <i class="fa-solid fa-chevron-right sidebar__nav-arrow"></i>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ────────────────────────────────────────── -->
+    <!-- RIGHT MAIN CONTENT                         -->
+    <!-- ────────────────────────────────────────── -->
+    <main class="main-content">
+
+      <!-- ═══════════ ACCOUNT SETTINGS ═══════════ -->
+      <section class="card" *ngIf="activeSection === 'account'">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title"><i class="fa-solid fa-user-pen"></i> Account Settings</h2>
+            <p class="card__subtitle">Update your personal information and preferences</p>
+          </div>
+        </div>
+
+        <!-- Success toast -->
+        <div class="toast toast--success" *ngIf="profileSaved">
+          <i class="fa-solid fa-circle-check"></i> Profile saved successfully!
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()" autocomplete="on">
+          <div class="form-grid">
+
+            <!-- Full Name -->
+            <div class="form-field" [class.form-field--error]="pf['fullName'].touched && pf['fullName'].invalid">
+              <label for="fullName">Full Name</label>
+              <div class="form-field__wrap">
+                <i class="fa-solid fa-user"></i>
+                <input id="fullName" type="text" formControlName="fullName" placeholder="Enter your full name" autocomplete="name" />
+              </div>
+              <span class="form-field__error" *ngIf="pf['fullName'].touched && pf['fullName'].errors?.['required']">Full name is required.</span>
+              <span class="form-field__error" *ngIf="pf['fullName'].touched && pf['fullName'].errors?.['minlength']">At least 3 characters.</span>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field" [class.form-field--error]="pf['email'].touched && pf['email'].invalid">
+              <label for="email">Email Address</label>
+              <div class="form-field__wrap">
+                <i class="fa-solid fa-envelope"></i>
+                <input id="email" type="email" formControlName="email" placeholder="you&#64;example.com" autocomplete="email" />
+              </div>
+              <span class="form-field__error" *ngIf="pf['email'].touched && pf['email'].errors?.['required']">Email is required.</span>
+              <span class="form-field__error" *ngIf="pf['email'].touched && pf['email'].errors?.['email']">Please enter a valid email.</span>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-field" [class.form-field--error]="pf['phone'].touched && pf['phone'].invalid">
+              <label for="phone">Phone Number</label>
+              <div class="form-field__wrap form-field__wrap--phone">
+                <i class="fa-solid fa-phone"></i>
+                <select formControlName="phoneCode" class="form-field__code" title="Phone country code" aria-label="Phone country code">
+                  <option *ngFor="let c of countryCodes" [value]="c.dial">{{ c.flag }} {{ c.dial }}</option>
+                </select>
+                <input id="phone" type="tel" formControlName="phone" placeholder="912345678" autocomplete="tel" />
+              </div>
+              <span class="form-field__error" *ngIf="pf['phone'].touched && pf['phone'].errors?.['required']">Phone number is required.</span>
+              <span class="form-field__error" *ngIf="pf['phone'].touched && pf['phone'].errors?.['pattern']">Enter a valid phone number (7-15 digits).</span>
+            </div>
+
+            <!-- Nationality -->
+            <div class="form-field">
+              <label for="nationality">Nationality <span class="optional">(optional)</span></label>
+              <div class="form-field__wrap">
+                <i class="fa-solid fa-globe"></i>
+                <select id="nationality" formControlName="nationality" class="form-field__select">
+                  <option value="">Select nationality</option>
+                  <option *ngFor="let n of nationalities" [value]="n.code">{{ n.name }}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Save -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">
+              <i class="fa-solid fa-floppy-disk"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ═══════════ CHANGE PASSWORD ═══════════ -->
+      <section class="card" *ngIf="activeSection === 'account'">
+        <div class="card__header">
+          <div>
+            <h2 class="card__title"><i class="fa-solid fa-shield-halved"></i> Change Password</h2>
+            <p class="card__subtitle">Keep your account secure with a strong password</p>
+          </div>
+        </div>
+
+        <!-- Success toast -->
+        <div class="toast toast--success" *ngIf="passwordUpdated">
+          <i class="fa-solid fa-circle-check"></i> Password updated successfully!
+        </div>
+
+        <form [formGroup]="passwordForm" (ngSubmit)="onUpdatePassword()" autocomplete="off">
+
+          <!-- Current Password -->
+          <div class="form-field" [class.form-field--error]="pw['currentPassword'].touched && pw['currentPassword'].invalid">
+            <label for="currentPw">Current Password</label>
+            <div class="form-field__wrap">
+              <i class="fa-solid fa-lock"></i>
+              <input
+                id="currentPw"
+                [type]="currentPwVisible ? 'text' : 'password'"
+                formControlName="currentPassword"
+                placeholder="Enter current password"
+                autocomplete="current-password"
+              />
+              <button type="button" class="form-field__toggle" (click)="toggleCurrentPw()" title="Toggle password visibility" [title]="currentPwVisible ? 'Hide password' : 'Show password'" [attr.aria-label]="currentPwVisible ? 'Hide current password' : 'Show current password'">
+                <i [class]="currentPwVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+              </button>
+            </div>
+            <span class="form-field__error" *ngIf="pw['currentPassword'].touched && pw['currentPassword'].errors?.['required']">Current password is required.</span>
+          </div>
+
+          <div class="form-grid">
+            <!-- New Password -->
+            <div class="form-field" [class.form-field--error]="pw['newPassword'].touched && pw['newPassword'].invalid">
+              <label for="newPw">New Password</label>
+              <div class="form-field__wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input
+                  id="newPw"
+                  [type]="newPwVisible ? 'text' : 'password'"
+                  formControlName="newPassword"
+                  placeholder="Min. 8 characters"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="form-field__toggle" (click)="toggleNewPw()" title="Toggle password visibility" [title]="newPwVisible ? 'Hide password' : 'Show password'" [attr.aria-label]="newPwVisible ? 'Hide new password' : 'Show new password'">
+                  <i [class]="newPwVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
+              <span class="form-field__error" *ngIf="pw['newPassword'].touched && pw['newPassword'].errors?.['required']">New password is required.</span>
+              <span class="form-field__error" *ngIf="pw['newPassword'].touched && pw['newPassword'].errors?.['minlength']">At least 8 characters required.</span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="form-field" [class.form-field--error]="pw['confirmPassword'].touched && (pw['confirmPassword'].invalid || passwordForm.errors?.['passwordsMismatch'])">
+              <label for="confirmPw">Confirm New Password</label>
+              <div class="form-field__wrap">
+                <i class="fa-solid fa-lock"></i>
+                <input
+                  id="confirmPw"
+                  [type]="confirmPwVisible ? 'text' : 'password'"
+                  formControlName="confirmPassword"
+                  placeholder="Re-enter new password"
+                  autocomplete="new-password"
+                />
+                <button type="button" class="form-field__toggle" (click)="toggleConfirmPw()" title="Toggle password visibility" [title]="confirmPwVisible ? 'Hide password' : 'Show password'" [attr.aria-label]="confirmPwVisible ? 'Hide confirm password' : 'Show confirm password'">
+                  <i [class]="confirmPwVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+                </button>
+              </div>
+              <span class="form-field__error" *ngIf="pw['confirmPassword'].touched && pw['confirmPassword'].errors?.['required']">Please confirm your password.</span>
+              <span class="form-field__error" *ngIf="pw['confirmPassword'].touched && !pw['confirmPassword'].errors?.['required'] && passwordForm.errors?.['passwordsMismatch']">Passwords do not match.</span>
+            </div>
+          </div>
+
+          <!-- Update -->
+          <div class="form-actions">
+            <button type="submit" class="btn btn--primary">
+              <i class="fa-solid fa-key"></i> Update Password
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ═══════════ MY BOOKINGS (placeholder) ═══════════ -->
+      <section class="card" *ngIf="activeSection === 'bookings'">
+        <div class="card__header">
+          <h2 class="card__title"><i class="fa-solid fa-suitcase"></i> My Bookings</h2>
+          <p class="card__subtitle">View and manage your upcoming trips</p>
+        </div>
+        <div class="placeholder-state">
+          <i class="fa-solid fa-suitcase-rolling"></i>
+          <h3>No bookings yet</h3>
+          <p>Your upcoming and past bookings will appear here.</p>
+          <a routerLink="/hotel-results" class="btn btn--primary"><i class="fa-solid fa-magnifying-glass"></i> Explore Hotels</a>
+        </div>
+      </section>
+
+      <!-- ═══════════ SAVED DESTINATIONS (placeholder) ═══════════ -->
+      <section class="card" *ngIf="activeSection === 'saved'">
+        <div class="card__header">
+          <h2 class="card__title"><i class="fa-solid fa-heart"></i> Saved Destinations</h2>
+          <p class="card__subtitle">Places you have wishlisted for future trips</p>
+        </div>
+        <div class="placeholder-state">
+          <i class="fa-regular fa-heart"></i>
+          <h3>No saved destinations</h3>
+          <p>Start exploring and save your favorite destinations here.</p>
+          <a routerLink="/" class="btn btn--primary"><i class="fa-solid fa-compass"></i> Discover Destinations</a>
+        </div>
+      </section>
+
+      <!-- ═══════════ SUPPORT (placeholder) ═══════════ -->
+      <section class="card" *ngIf="activeSection === 'support'">
+        <div class="card__header">
+          <h2 class="card__title"><i class="fa-solid fa-headset"></i> Support</h2>
+          <p class="card__subtitle">Get help from our 24/7 support team</p>
+        </div>
+        <div class="placeholder-state">
+          <i class="fa-solid fa-life-ring"></i>
+          <h3>How can we help?</h3>
+          <p>Reach out to our support team and we will get back to you shortly.</p>
+          <button class="btn btn--primary" (click)="chatOpen = true"><i class="fa-solid fa-comments"></i> Start a Chat</button>
+        </div>
+      </section>
+    </main>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <p>&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="chatbot">
+  <button class="chatbot__btn" (click)="chatOpen = !chatOpen; chatMode = 'preview'" aria-label="Chat with us">
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header"><i class="fa-solid fa-headset"></i> Need Help?</div>
+      <div class="chatbot__body">
+        <p>Chat with our AI travel assistant — available 24/7 to help you.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <app-ai-chat *ngIf="chatMode === 'chat'"></app-ai-chat>
+  </div>
+</div>

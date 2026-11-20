@@ -1,0 +1,278 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAVBAR                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="navbar">
+  <div class="navbar__container">
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+
+    <button
+      class="navbar__toggle"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen"
+      aria-label="Toggle navigation"
+    >
+      <i [class]="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
+
+    <nav class="navbar__nav" [class.navbar__nav--open]="menuOpen">
+      <a class="navbar__link" routerLink="/" (click)="closeMenu()">Home</a>
+      <a class="navbar__link navbar__link--active" routerLink="/hotel-results" (click)="closeMenu()">Destinations</a>
+      <a class="navbar__link" routerLink="/profile" (click)="closeMenu()">Profile</a>
+      <a class="btn btn--primary navbar__sign-in" routerLink="/login" (click)="closeMenu()">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SEARCH SUMMARY BAR                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="search-bar">
+  <div class="search-bar__inner">
+    <div class="search-bar__chips" (click)="searchBarOpen = !searchBarOpen" style="cursor:pointer" title="Click to edit search">
+      <div class="search-bar__chip">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>{{ searchSummary.location }}</span>
+      </div>
+      <div class="search-bar__chip">
+        <i class="fa-regular fa-calendar"></i>
+        <span>{{ searchSummary.dates }}</span>
+      </div>
+      <div class="search-bar__chip">
+        <i class="fa-solid fa-wallet"></i>
+        <span>{{ searchSummary.budget }}</span>
+      </div>
+      <div class="search-bar__chip search-bar__chip--edit">
+        <i class="fa-solid fa-pen"></i>
+        <span>Edit</span>
+      </div>
+    </div>
+
+    <div class="search-bar__sort">
+      <label for="sort">Sort by</label>
+      <select id="sort" [(ngModel)]="sortOption">
+        <option value="best">Best Match</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="rating">Guest Rating</option>
+        <option value="stars">Star Rating</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Expandable edit form -->
+  <div class="search-bar__edit-form" *ngIf="searchBarOpen">
+    <div class="search-bar__edit-fields">
+      <div class="search-bar__edit-field">
+        <i class="fa-solid fa-location-dot"></i>
+        <input type="text" placeholder="Destination (city or country)" [(ngModel)]="searchDestination" />
+      </div>
+      <div class="search-bar__edit-field">
+        <i class="fa-regular fa-calendar"></i>
+        <input type="date" placeholder="Check-in" [(ngModel)]="searchCheckIn" />
+      </div>
+      <div class="search-bar__edit-field">
+        <i class="fa-regular fa-calendar-check"></i>
+        <input type="date" placeholder="Check-out" [(ngModel)]="searchCheckOut" />
+      </div>
+      <div class="search-bar__edit-field">
+        <i class="fa-solid fa-wallet"></i>
+        <select [(ngModel)]="searchBudget">
+          <option value="" disabled>Budget</option>
+          <option value="low">$0 – $500</option>
+          <option value="mid">$500 – $1,500</option>
+          <option value="high">$1,500 – $3,000</option>
+          <option value="luxury">$3,000+</option>
+        </select>
+      </div>
+      <button class="btn btn--primary" (click)="updateSearch()">
+        <i class="fa-solid fa-magnifying-glass"></i> Search
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT — two-column layout                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<main class="results">
+
+  <!-- Mobile filter toggle -->
+  <button class="filter-toggle" (click)="toggleMobileFilters()">
+    <i class="fa-solid fa-sliders"></i>
+    Filters
+  </button>
+
+  <!-- ───── LEFT SIDEBAR: Filters ───── -->
+  <aside class="filters" [class.filters--open]="mobileFiltersOpen">
+    <div class="filters__header">
+      <h2 class="filters__title">
+        <i class="fa-solid fa-sliders"></i> Filters
+      </h2>
+      <button class="filters__close" title="Close filters" aria-label="Close filters" (click)="mobileFiltersOpen = false">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+
+    <!-- Budget slider -->
+    <div class="filter-group">
+      <h3 class="filter-group__label">Budget per Night</h3>
+      <input
+        type="range"
+        class="filter-group__slider"
+        title="Budget per night"
+        aria-label="Budget per night"
+        [min]="budgetMin"
+        [max]="budgetMax"
+        [(ngModel)]="budgetValue"
+        step="10"
+      />
+      <div class="filter-group__range">
+        <span>${{ budgetMin }}</span>
+        <strong>${{ budgetValue }}{{ budgetValue >= budgetMax ? '+' : '' }}</strong>
+        <span>${{ budgetMax }}+</span>
+      </div>
+    </div>
+
+    <!-- Star Rating -->
+    <div class="filter-group">
+      <h3 class="filter-group__label">Star Rating</h3>
+      <label class="filter-check" *ngFor="let s of starFilters">
+        <input type="checkbox" [(ngModel)]="s.checked" />
+        <span class="filter-check__box"></span>
+        <span class="filter-check__stars">
+          <i class="fa-solid fa-star" *ngFor="let _ of starsArray(s.stars)"></i>
+        </span>
+        <span>{{ s.label }}</span>
+      </label>
+    </div>
+
+    <!-- Property Type -->
+    <div class="filter-group">
+      <h3 class="filter-group__label">Property Type</h3>
+      <label class="filter-check" *ngFor="let p of propertyTypes">
+        <input type="checkbox" [(ngModel)]="p.checked" />
+        <span class="filter-check__box"></span>
+        <span>{{ p.type }}</span>
+      </label>
+    </div>
+
+    <!-- Guest Rating -->
+    <div class="filter-group">
+      <h3 class="filter-group__label">Guest Rating</h3>
+      <label class="filter-check" *ngFor="let g of guestRatings">
+        <input type="checkbox" [(ngModel)]="g.checked" />
+        <span class="filter-check__box"></span>
+        <span>{{ g.label }}</span>
+      </label>
+    </div>
+
+    <!-- Neighborhood -->
+    <div class="filter-group">
+      <h3 class="filter-group__label">Neighborhood</h3>
+      <div class="filter-group__select-wrap">
+        <select title="Neighborhood" aria-label="Neighborhood" [(ngModel)]="selectedNeighborhood">
+          <option *ngFor="let n of neighborhoods" [value]="n">{{ n }}</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ───── RIGHT: Hotel Results ───── -->
+  <section class="hotel-list">
+    <p class="hotel-list__count">
+      <strong>{{ filteredHotels.length }}</strong> properties found in
+      <strong>{{ searchSummary.location }}</strong>
+    </p>
+
+    <div class="hotel-card" *ngFor="let hotel of filteredHotels">
+      <!-- Image -->
+      <div class="hotel-card__image">
+        <img [src]="hotel.image" [alt]="hotel.name" [title]="hotel.name" title="Hotel image" loading="lazy" />
+      </div>
+
+      <!-- Info -->
+      <div class="hotel-card__info">
+        <div class="hotel-card__top">
+          <h3 class="hotel-card__name">{{ hotel.name }}</h3>
+          <div class="hotel-card__stars">
+            <i class="fa-solid fa-star" *ngFor="let _ of starsArray(hotel.stars)"></i>
+            <i class="fa-regular fa-star" *ngFor="let _ of emptyStarsArray(hotel.stars)"></i>
+          </div>
+          <p class="hotel-card__location">
+            <i class="fa-solid fa-location-dot"></i>
+            {{ hotel.location }}
+          </p>
+        </div>
+
+        <div class="hotel-card__tags">
+          <span class="hotel-card__tag" *ngFor="let tag of hotel.tags">
+            <i class="fa-solid fa-circle-check"></i> {{ tag }}
+          </span>
+        </div>
+
+        <div class="hotel-card__bottom">
+          <div class="hotel-card__rating">
+            <span class="hotel-card__score">{{ hotel.ratingScore }}</span>
+            <div>
+              <span class="hotel-card__rating-label">{{ hotel.ratingLabel }}</span>
+              <span class="hotel-card__reviews">{{ hotel.reviews | number }} reviews</span>
+            </div>
+          </div>
+
+          <div class="hotel-card__pricing">
+            <span class="hotel-card__price">${{ hotel.price }}</span>
+            <span class="hotel-card__tax">per night · including taxes</span>
+            <button class="btn btn--primary btn--sm" (click)="viewDetails(hotel)">View Details</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <i class="fa-solid fa-paper-plane"></i> TripFlow
+    </div>
+    <p class="footer__copy">&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__socials">
+      <a href="#" title="Facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#" title="Twitter" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#" title="Instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="chatbot">
+  <button
+    class="chatbot__btn"
+    (click)="chatOpen = !chatOpen; chatMode = 'preview'"
+    aria-label="Chat with us"
+  >
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header">
+        <i class="fa-solid fa-headset"></i>
+        Need Help?
+      </div>
+      <div class="chatbot__body">
+        <p>Chat with us! Our AI travel assistant is available 24/7 to help you plan your perfect trip.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <app-ai-chat *ngIf="chatMode === 'chat'" [pageContext]="hotelsContext"></app-ai-chat>
+  </div>
+</div>

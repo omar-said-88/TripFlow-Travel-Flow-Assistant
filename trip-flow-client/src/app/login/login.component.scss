@@ -1,0 +1,470 @@
+/* ═══════════════════════════════════════════════════════ */
+/*  LOGIN PAGE — TripFlow                                 */
+/* ═══════════════════════════════════════════════════════ */
+
+/* ── Design tokens ── */
+$blue-50:   #eff6ff;
+$blue-100:  #dbeafe;
+$blue-200:  #bfdbfe;
+$blue-500:  #3b82f6;
+$blue-600:  #2563eb;
+$blue-700:  #1d4ed8;
+$blue-800:  #1e40af;
+$blue-900:  #1e3a8a;
+
+$gray-50:   #f9fafb;
+$gray-100:  #f3f4f6;
+$gray-200:  #e5e7eb;
+$gray-300:  #d1d5db;
+$gray-400:  #9ca3af;
+$gray-500:  #6b7280;
+$gray-600:  #4b5563;
+$gray-700:  #374151;
+$gray-800:  #1f2937;
+$gray-900:  #111827;
+
+$red-500:   #ef4444;
+$green-500: #22c55e;
+
+$radius:    14px;
+$radius-sm: 10px;
+$radius-lg: 20px;
+$shadow:    0 10px 40px rgba(0, 0, 0, .12);
+$transition: .25s ease;
+
+/* ── Mixins ── */
+@mixin sm  { @media (max-width: 640px)  { @content; } }
+@mixin md  { @media (max-width: 768px)  { @content; } }
+
+/* ═══════════════════════════════════════════════════════ */
+/*  PAGE WRAPPER + BACKGROUND                             */
+/* ═══════════════════════════════════════════════════════ */
+.auth-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px 20px;
+
+  &__bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(135deg, rgba($blue-900, .85) 0%, rgba($blue-600, .72) 50%, rgba($blue-500, .55) 100%),
+      url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80') center / cover no-repeat;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  BRAND BAR                                             */
+/* ═══════════════════════════════════════════════════════ */
+.brand-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 32px;
+  z-index: 10;
+
+  &__logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #fff;
+    font-size: 1.45rem;
+    font-weight: 800;
+    text-decoration: none;
+    i { font-size: 1.3rem; }
+  }
+
+  &__home {
+    color: rgba(255, 255, 255, .75);
+    font-size: .9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: color $transition;
+    &:hover { color: #fff; }
+  }
+
+  @include sm {
+    padding: 14px 18px;
+    &__logo { font-size: 1.2rem; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  AUTH CARD — centered single card                      */
+/* ═══════════════════════════════════════════════════════ */
+.auth-card {
+  width: 100%;
+  max-width: 460px;
+  background: #fff;
+  padding: 44px 40px;
+  border-radius: $radius-lg;
+  box-shadow: $shadow;
+  animation: fadeUp .4s ease;
+
+  &__icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    background: $blue-50;
+    color: $blue-600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  &__title {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: $gray-900;
+    margin-bottom: 6px;
+  }
+
+  &__subtitle {
+    font-size: .92rem;
+    color: $gray-500;
+    margin-bottom: 28px;
+  }
+
+  &__switch {
+    text-align: center;
+    font-size: .88rem;
+    color: $gray-500;
+    margin-top: 22px;
+  }
+
+  @include sm {
+    padding: 30px 24px;
+    &__title { font-size: 1.35rem; }
+    &__icon { width: 50px; height: 50px; font-size: 1.3rem; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  FORM FIELDS                                           */
+/* ═══════════════════════════════════════════════════════ */
+.form-field {
+  margin-bottom: 18px;
+
+  label {
+    display: block;
+    font-size: .85rem;
+    font-weight: 600;
+    color: $gray-700;
+    margin-bottom: 6px;
+  }
+
+  &__wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 1.5px solid $gray-300;
+    border-radius: $radius-sm;
+    transition: border-color $transition, box-shadow $transition;
+
+    &:focus-within {
+      border-color: $blue-500;
+      box-shadow: 0 0 0 3px rgba($blue-500, .15);
+    }
+
+    > i:first-child {
+      position: absolute;
+      left: 14px;
+      font-size: .9rem;
+      color: $gray-400;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px 44px 12px 42px;
+      font-size: .93rem;
+      border: none;
+      background: transparent;
+      color: $gray-800;
+      outline: none;
+      border-radius: $radius-sm;
+      &::placeholder { color: $gray-400; }
+    }
+  }
+
+  &__toggle {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 6px;
+    color: $gray-400;
+    transition: color $transition;
+    &:hover { color: $gray-600; }
+  }
+
+  &__error {
+    display: block;
+    font-size: .8rem;
+    color: $red-500;
+    margin-top: 5px;
+    animation: shake .35s;
+  }
+
+  &--error &__wrap {
+    border-color: $red-500;
+    &:focus-within { box-shadow: 0 0 0 3px rgba($red-500, .12); }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  FORM ROW (remember + forgot)                          */
+/* ═══════════════════════════════════════════════════════ */
+.form-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+}
+
+.link {
+  font-size: .85rem;
+  color: $blue-600;
+  text-decoration: none;
+  font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+.link-btn {
+  color: $blue-600;
+  font-weight: 600;
+  text-decoration: underline;
+  &:hover { color: $blue-700; }
+}
+
+/* ── Custom checkbox ── */
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: .87rem;
+  color: $gray-600;
+
+  input {
+    display: none;
+    &:checked ~ .checkbox__box {
+      background: $blue-600;
+      border-color: $blue-600;
+      &::after { opacity: 1; transform: scale(1); }
+    }
+  }
+
+  &__box {
+    width: 18px;
+    height: 18px;
+    border: 2px solid $gray-300;
+    border-radius: 5px;
+    position: relative;
+    transition: background $transition, border-color $transition;
+
+    &::after {
+      content: '\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: .65rem;
+      color: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: scale(0);
+      translate: -50% -50%;
+      opacity: 0;
+      transition: all $transition;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  BUTTONS                                               */
+/* ═══════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: .95rem;
+  border: none;
+  cursor: pointer;
+  border-radius: $radius-sm;
+  padding: 13px 24px;
+  transition: background $transition, transform .15s, box-shadow $transition;
+
+  &--primary {
+    background: $blue-600;
+    color: #fff;
+    &:hover { background: $blue-700; transform: translateY(-1px); box-shadow: 0 4px 14px rgba($blue-600, .35); }
+    &:active { transform: translateY(0); }
+  }
+
+  &--block { width: 100%; }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  DIVIDER                                               */
+/* ═══════════════════════════════════════════════════════ */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: $gray-200;
+  }
+
+  span {
+    font-size: .82rem;
+    color: $gray-400;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  SOCIAL BUTTONS                                        */
+/* ═══════════════════════════════════════════════════════ */
+.social-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px;
+  border-radius: $radius-sm;
+  font-size: .9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background $transition, transform .15s;
+
+  &--google {
+    background: #fff;
+    border: 1.5px solid $gray-300;
+    color: $gray-700;
+    i { color: #ea4335; font-size: 1.05rem; }
+    &:hover { background: $gray-50; transform: translateY(-1px); }
+  }
+
+  &--facebook {
+    background: #1877f2;
+    border: none;
+    color: #fff;
+    i { font-size: 1.05rem; }
+    &:hover { background: darken(#1877f2, 8%); transform: translateY(-1px); }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  CHATBOT                                               */
+/* ═══════════════════════════════════════════════════════ */
+.chatbot {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 100;
+
+  &__btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: $blue-600;
+    color: #fff;
+    font-size: 1.35rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba($blue-600, .45);
+    transition: background $transition, transform .2s;
+    &:hover { background: $blue-700; transform: scale(1.08); }
+  }
+
+  &__popup {
+    position: absolute;
+    bottom: 68px;
+    right: 0;
+    width: 300px;
+    background: #fff;
+    border-radius: $radius;
+    box-shadow: $shadow;
+    overflow: hidden;
+    animation: fadeUp .3s ease;
+  }
+
+  &__popup--chat {
+    height: 450px;
+    width: 360px;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  &__header {
+    padding: 16px 20px;
+    background: $blue-600;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__body {
+    padding: 20px;
+    p {
+      font-size: .88rem;
+      color: $gray-600;
+      margin-bottom: 14px;
+      line-height: 1.55;
+    }
+  }
+
+  @include sm {
+    bottom: 18px;
+    right: 18px;
+    &__btn { width: 50px; height: 50px; font-size: 1.2rem; }
+    &__popup { width: 260px; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/*  ANIMATIONS                                            */
+/* ═══════════════════════════════════════════════════════ */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%  { transform: translateX(-4px); }
+  40%  { transform: translateX(4px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

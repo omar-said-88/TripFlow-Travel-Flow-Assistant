@@ -1,0 +1,505 @@
+/* ═══════════════════════════════════════════════════════════
+   VARIABLES & MIXINS
+   ═══════════════════════════════════════════════════════════ */
+$blue-50:  #eff6ff;
+$blue-100: #dbeafe;
+$blue-500: #3b82f6;
+$blue-600: #2563eb;
+$blue-700: #1d4ed8;
+$gray-50:  #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$white:    #ffffff;
+$amber:    #f59e0b;
+$green:    #10b981;
+$red-500:  #ef4444;
+$red-50:   #fef2f2;
+
+$shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+$shadow-md: 0 4px 14px rgba(0,0,0,0.08);
+$shadow-lg: 0 10px 30px rgba(0,0,0,0.1);
+
+$radius:     14px;
+$radius-sm:  10px;
+$radius-xs:  6px;
+$radius-pill: 50px;
+$transition: 0.25s ease;
+
+@mixin respond($bp) {
+  @if $bp == sm  { @media (max-width: 640px)  { @content; } }
+  @if $bp == md  { @media (max-width: 768px)  { @content; } }
+  @if $bp == lg  { @media (max-width: 1024px) { @content; } }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SHARED BUTTON
+   ═══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 28px; font-size: 0.95rem; font-weight: 600;
+  border: none; border-radius: $radius-pill; cursor: pointer;
+  transition: background $transition, transform $transition, box-shadow $transition;
+
+  &--primary {
+    background: $blue-600; color: $white;
+    box-shadow: 0 4px 14px rgba($blue-600, 0.35);
+    &:hover { background: $blue-700; transform: translateY(-2px); box-shadow: 0 6px 20px rgba($blue-600, 0.45); }
+  }
+  &--sm    { padding: 10px 22px; font-size: 0.88rem; }
+  &--block { width: 100%; justify-content: center; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NAVBAR
+   ═══════════════════════════════════════════════════════════ */
+.navbar {
+  position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+  background: rgba($white, 0.92); backdrop-filter: blur(12px);
+  border-bottom: 1px solid $gray-200; box-shadow: $shadow-sm;
+
+  &__container {
+    max-width: 1320px; margin: 0 auto; padding: 0 24px;
+    height: 68px; display: flex; align-items: center; justify-content: space-between;
+  }
+  &__logo {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 1.45rem; font-weight: 800; color: $blue-600; text-decoration: none;
+    i { font-size: 1.3rem; transform: rotate(-20deg); }
+  }
+  &__toggle {
+    display: none; background: none; border: none;
+    font-size: 1.4rem; color: $gray-700; cursor: pointer;
+    @include respond(md) { display: block; }
+  }
+  &__nav {
+    display: flex; align-items: center; gap: 8px;
+    @include respond(md) {
+      position: fixed; top: 68px; left: 0; right: 0; bottom: 0;
+      flex-direction: column; background: $white; padding: 32px 24px; gap: 16px;
+      transform: translateX(100%); transition: transform $transition;
+      &--open { transform: translateX(0); }
+    }
+  }
+  &__link {
+    padding: 8px 16px; font-size: 0.95rem; font-weight: 500;
+    color: $gray-700; text-decoration: none; border-radius: $radius-sm;
+    transition: color $transition, background $transition;
+    &:hover, &--active { color: $blue-600; background: $blue-50; }
+  }
+  &__sign-in {
+    margin-left: 8px;
+    @include respond(md) { margin-left: 0; width: 100%; justify-content: center; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PAGE HEADER + STEPPER
+   ═══════════════════════════════════════════════════════════ */
+.page-header {
+  margin-top: 68px;
+  background: linear-gradient(135deg, $blue-600 0%, $blue-700 100%);
+  color: $white;
+
+  &__inner {
+    max-width: 1320px; margin: 0 auto; padding: 36px 24px 28px;
+  }
+
+  &__title {
+    font-size: 1.75rem; font-weight: 800; margin-bottom: 28px;
+    @include respond(sm) { font-size: 1.35rem; }
+  }
+}
+
+.stepper {
+  display: flex; align-items: center; gap: 0;
+  @include respond(sm) { gap: 0; }
+
+  &__step {
+    display: flex; align-items: center; gap: 10px; flex: 1;
+    position: relative;
+
+    &:not(:last-child)::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: rgba($white, 0.3);
+      margin: 0 12px;
+    }
+
+    &--active &__label { font-weight: 600; }
+
+    &--done .stepper__circle {
+      background: $white; color: $green;
+    }
+    &--done::after { background: rgba($white, 0.7) !important; }
+
+    &--active .stepper__circle {
+      background: $white; color: $blue-600;
+      box-shadow: 0 0 0 4px rgba($white, 0.3);
+    }
+
+    @include respond(sm) {
+      &:not(:last-child)::after { margin: 0 6px; }
+    }
+  }
+
+  &__circle {
+    width: 36px; height: 36px; flex-shrink: 0;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.9rem;
+    background: rgba($white, 0.2); color: rgba($white, 0.7);
+    transition: all $transition;
+
+    @include respond(sm) { width: 30px; height: 30px; font-size: 0.8rem; }
+  }
+
+  &__label {
+    font-size: 0.88rem; color: rgba($white, 0.8); white-space: nowrap;
+    @include respond(sm) { font-size: 0.72rem; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHECKOUT LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+.checkout-layout {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 32px;
+
+  @include respond(lg) { grid-template-columns: 1fr 340px; }
+  @include respond(md) { grid-template-columns: 1fr; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   HOTEL SUMMARY CARD
+   ═══════════════════════════════════════════════════════════ */
+.hotel-summary {
+  display: flex;
+  gap: 18px;
+  background: $white;
+  border-radius: $radius;
+  padding: 18px;
+  box-shadow: $shadow-md;
+  margin-bottom: 24px;
+
+  @include respond(sm) { flex-direction: column; }
+
+  &__image {
+    width: 140px; height: 110px; flex-shrink: 0;
+    border-radius: $radius-sm; overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; }
+    @include respond(sm) { width: 100%; height: 180px; }
+  }
+
+  &__info { display: flex; flex-direction: column; gap: 6px; }
+
+  &__name { font-size: 1.15rem; font-weight: 700; color: $gray-800; }
+
+  &__stars {
+    display: flex; align-items: center; gap: 3px;
+    .fa-solid { color: $amber; font-size: 0.8rem; }
+    .fa-regular { color: $gray-300; font-size: 0.8rem; }
+  }
+
+  &__reviews {
+    font-size: 0.78rem; color: $gray-400; margin-left: 8px;
+  }
+
+  &__rating { display: flex; align-items: center; gap: 8px; }
+
+  &__score {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; background: $blue-600; color: $white;
+    border-radius: $radius-xs; font-weight: 700; font-size: 0.85rem;
+  }
+
+  &__rating-label { font-size: 0.85rem; font-weight: 600; color: $gray-700; }
+
+  &__location {
+    font-size: 0.85rem; color: $gray-500;
+    i { color: $blue-500; margin-right: 5px; font-size: 0.8rem; }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FORM CARDS
+   ═══════════════════════════════════════════════════════════ */
+.form-card {
+  background: $white;
+  border-radius: $radius;
+  padding: 28px;
+  box-shadow: $shadow-md;
+  margin-bottom: 24px;
+
+  &__title {
+    font-size: 1.1rem; font-weight: 700; color: $gray-800;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 24px;
+    i { color: $blue-500; }
+  }
+}
+
+/* ── Form fields ── */
+.form-field {
+  margin-bottom: 20px;
+
+  label {
+    display: block; font-size: 0.82rem; font-weight: 600;
+    color: $gray-600; margin-bottom: 6px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  &__input-wrap {
+    display: flex; align-items: center; gap: 10px;
+    border: 1.5px solid $gray-200; border-radius: $radius-xs;
+    padding: 0 14px; background: $gray-50;
+    transition: border-color $transition, box-shadow $transition;
+
+    &:focus-within {
+      border-color: $blue-500;
+      box-shadow: 0 0 0 3px rgba($blue-500, 0.1);
+      background: $white;
+    }
+
+    i { color: $gray-400; font-size: 0.9rem; flex-shrink: 0; }
+
+    input, select {
+      flex: 1; width: 100%;
+      padding: 12px 0; border: none; outline: none;
+      background: transparent; font-size: 0.92rem;
+      font-family: inherit; color: $gray-800;
+
+      &::placeholder { color: $gray-400; }
+    }
+
+    select { cursor: pointer; }
+  }
+
+  &--error &__input-wrap {
+    border-color: $red-500;
+    background: $red-50;
+
+    &:focus-within {
+      box-shadow: 0 0 0 3px rgba($red-500, 0.1);
+    }
+  }
+
+  &__error {
+    display: block;
+    font-size: 0.78rem;
+    color: $red-500;
+    margin-top: 6px;
+    padding-left: 2px;
+    animation: shakeIn 0.3s ease;
+  }
+}
+
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  25%  { transform: translateX(-4px); }
+  75%  { transform: translateX(4px); }
+}
+
+/* ── Checkbox ── */
+.checkbox-field {
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; padding: 4px 0;
+
+  input[type="checkbox"] { display: none; }
+
+  &__box {
+    width: 20px; height: 20px; flex-shrink: 0;
+    border: 2px solid $gray-300; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background $transition, border-color $transition;
+
+    &::after {
+      content: '\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 0.6rem;
+      color: $white;
+      opacity: 0;
+      transition: opacity $transition;
+    }
+  }
+
+  input:checked + &__box {
+    background: $blue-600; border-color: $blue-600;
+    &::after { opacity: 1; }
+  }
+
+  &__label {
+    font-size: 0.9rem; color: $gray-700;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOOKING SUMMARY CARD (right sidebar)
+   ═══════════════════════════════════════════════════════════ */
+.summary-card {
+  @include respond(md) { order: -1; }
+
+  &__sticky {
+    position: sticky; top: 96px;
+    background: $white; border-radius: $radius;
+    box-shadow: $shadow-md; padding: 28px;
+  }
+
+  &__title {
+    font-size: 1.1rem; font-weight: 700; color: $gray-800;
+    display: flex; align-items: center; gap: 10px; margin-bottom: 22px;
+    i { color: $blue-500; }
+  }
+
+  &__divider {
+    height: 1px; background: $gray-200; margin: 18px 0;
+  }
+
+  &__cta { margin-top: 22px; margin-bottom: 14px; padding: 14px 28px; font-size: 1rem; }
+
+  &__cancel {
+    font-size: 0.82rem; color: $green; text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    margin-bottom: 20px;
+    i { font-size: 0.75rem; }
+  }
+}
+
+/* Check-in / Check-out row */
+.summary-row {
+  &--highlight {
+    display: flex; align-items: center; gap: 0;
+    background: $blue-50; border-radius: $radius-sm;
+    padding: 16px; border: 1px solid $blue-100;
+  }
+
+  &__item {
+    flex: 1; text-align: center;
+    strong { display: block; font-size: 0.95rem; color: $gray-800; }
+  }
+
+  &__label {
+    display: block; font-size: 0.75rem; font-weight: 600;
+    color: $blue-600; text-transform: uppercase; letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  &__divider {
+    width: 36px; text-align: center; color: $blue-500; font-size: 0.8rem;
+  }
+}
+
+/* Room & guest info */
+.summary-info {
+  display: flex; flex-wrap: wrap; gap: 14px;
+  padding: 14px 0; font-size: 0.85rem; color: $gray-600;
+
+  span {
+    display: flex; align-items: center; gap: 6px;
+    i { color: $blue-500; font-size: 0.8rem; }
+  }
+}
+
+/* Price breakdown */
+.price-line {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 6px 0; font-size: 0.9rem; color: $gray-600;
+
+  &--total {
+    font-size: 1.15rem; font-weight: 800;
+    span:first-child { color: $gray-800; }
+    span:last-child { color: $blue-600; font-size: 1.35rem; }
+  }
+}
+
+/* Trust badges */
+.trust-badges {
+  display: flex; flex-direction: column; gap: 10px;
+  padding-top: 6px;
+}
+
+.trust-badge {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: $gray-500;
+
+  i {
+    width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+    background: $gray-50; border-radius: 50%; color: $blue-500; font-size: 0.75rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════════════════════ */
+.footer {
+  background: $gray-800; color: rgba($white, 0.7);
+
+  &__inner {
+    max-width: 1320px; margin: 0 auto; padding: 32px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 16px;
+  }
+  &__brand {
+    font-size: 1.2rem; font-weight: 700; color: $white;
+    i { color: $blue-500; margin-right: 6px; }
+  }
+  &__copy { font-size: 0.85rem; }
+  &__socials {
+    display: flex; gap: 16px;
+    a { color: rgba($white, 0.6); font-size: 1.1rem; transition: color $transition;
+      &:hover { color: $blue-500; }
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CHATBOT
+   ═══════════════════════════════════════════════════════════ */
+.chatbot {
+  position: fixed; bottom: 28px; right: 28px; z-index: 1100;
+
+  &__btn {
+    width: 58px; height: 58px; border-radius: 50%; border: none;
+    background: $blue-600; color: $white; font-size: 1.4rem; cursor: pointer;
+    box-shadow: 0 6px 24px rgba($blue-600, 0.45);
+    transition: background $transition, transform $transition;
+    display: flex; align-items: center; justify-content: center;
+    &:hover { background: $blue-700; transform: scale(1.08); }
+  }
+
+  &__popup {
+    position: absolute; bottom: 72px; right: 0; width: 300px;
+    background: $white; border-radius: $radius; box-shadow: $shadow-lg;
+    overflow: hidden; animation: chatSlideUp 0.3s ease;
+  }
+  &__popup--chat {
+    height: 450px;
+    width: 360px;
+    padding: 0;
+    overflow: hidden;
+  }
+  &__header {
+    background: $blue-600; color: $white; padding: 16px 20px;
+    font-weight: 700; display: flex; align-items: center; gap: 10px;
+  }
+  &__body {
+    padding: 20px;
+    p { font-size: 0.9rem; color: $gray-600; line-height: 1.55; margin-bottom: 16px; }
+  }
+}
+
+@keyframes chatSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

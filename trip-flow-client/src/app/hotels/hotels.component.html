@@ -1,0 +1,195 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- NAVBAR                                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="navbar">
+  <div class="navbar__container">
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+    <button class="navbar__toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">
+      <i [class]="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
+    <nav class="navbar__nav" [class.navbar__nav--open]="menuOpen">
+      <a class="navbar__link" routerLink="/" (click)="closeMenu()">Home</a>
+      <a class="navbar__link navbar__link--active" routerLink="/hotels" (click)="closeMenu()">Hotels</a>
+      <a class="navbar__link" routerLink="/profile" (click)="closeMenu()">Profile</a>
+      <a class="btn btn--primary navbar__sign-in" routerLink="/login" (click)="closeMenu()">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO BANNER                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="hotels-hero">
+  <div class="hotels-hero__inner">
+    <h1 class="hotels-hero__title">Find Your Perfect Stay</h1>
+    <p class="hotels-hero__sub">Browse hotels ranked by popularity, price, and guest satisfaction</p>
+
+    <div class="hotels-hero__search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        placeholder="Search hotels..."
+        [(ngModel)]="searchQuery"
+        (input)="applyFilters()"
+        title="Search hotels"
+        aria-label="Search hotels"
+      />
+      <span class="hotels-hero__count" *ngIf="!loading">{{ filtered.length }} hotels</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<main class="hotels-main">
+
+  <!-- ── SIDEBAR FILTERS ── -->
+  <aside class="hotels-sidebar">
+    <h2 class="sidebar-section__title">
+      <i class="fa-solid fa-sliders"></i> Filters
+    </h2>
+
+    <!-- Price filter -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-section__label">Max Avg. Price / night</h3>
+      <input
+        type="range"
+        class="price-slider"
+        [min]="0"
+        [max]="maxPrice"
+        [(ngModel)]="priceFilter"
+        (input)="applyFilters()"
+        step="10"
+        title="Maximum average price per night"
+        aria-label="Maximum average price per night"
+      />
+      <div class="price-slider__labels">
+        <span>$0</span>
+        <strong>${{ priceFilter }}</strong>
+        <span>${{ maxPrice }}+</span>
+      </div>
+    </div>
+
+    <!-- Sort -->
+    <div class="sidebar-section">
+      <h3 class="sidebar-section__label">Sort by</h3>
+      <button class="sort-btn" [class.sort-btn--active]="sortKey === 'bookings'" (click)="setSort('bookings')">
+        <i class="fa-solid fa-arrow-trend-up"></i> Most Booked
+        <i *ngIf="sortKey === 'bookings'" [class]="sortDir === 'desc' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+      </button>
+      <button class="sort-btn" [class.sort-btn--active]="sortKey === 'price'" (click)="setSort('price')">
+        <i class="fa-solid fa-dollar-sign"></i> Price
+        <i *ngIf="sortKey === 'price'" [class]="sortDir === 'desc' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+      </button>
+      <button class="sort-btn" [class.sort-btn--active]="sortKey === 'name'" (click)="setSort('name')">
+        <i class="fa-solid fa-font"></i> Name
+        <i *ngIf="sortKey === 'name'" [class]="sortDir === 'asc' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+      </button>
+      <button class="sort-btn" [class.sort-btn--active]="sortKey === 'cancellation'" (click)="setSort('cancellation')">
+        <i class="fa-solid fa-ban"></i> Cancellation Rate
+        <i *ngIf="sortKey === 'cancellation'" [class]="sortDir === 'desc' ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── HOTEL GRID ── -->
+  <section class="hotels-grid-wrap">
+
+    <!-- Loading -->
+    <div class="hotels-status" *ngIf="loading">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <p>Loading hotels from the server&hellip;</p>
+    </div>
+
+    <!-- Error -->
+    <div class="hotels-status hotels-status--error" *ngIf="error && !loading">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- Empty -->
+    <div class="hotels-status" *ngIf="!loading && !error && filtered.length === 0">
+      <i class="fa-solid fa-hotel"></i>
+      <p>No hotels match your search.</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="hotels-grid" *ngIf="!loading && !error && filtered.length > 0">
+      <article class="hotel-card" *ngFor="let hotel of filtered; let i = index">
+
+        <!-- Image -->
+        <div class="hotel-card__img-wrap">
+          <img
+            [src]="imageFor(i)"
+            [alt]="hotel.hotel"
+            [title]="hotel.hotel"
+            loading="lazy"
+            class="hotel-card__img"
+          />
+          <span class="hotel-card__badge">
+            <i class="fa-solid fa-fire"></i> {{ hotel.totalBookings | number }} bookings
+          </span>
+        </div>
+
+        <!-- Body -->
+        <div class="hotel-card__body">
+          <h3 class="hotel-card__name">{{ hotel.hotel }}</h3>
+
+          <div class="hotel-card__meta">
+            <span class="hotel-card__rating">
+              <span class="hotel-card__score">{{ ratingScore(hotel.avgAdr) }}</span>
+              <span class="hotel-card__label">{{ ratingLabel(hotel.avgAdr) }}</span>
+            </span>
+            <span class="hotel-card__loc">
+              <i class="fa-solid fa-location-dot"></i> {{ hotel.hotel }}
+            </span>
+          </div>
+
+          <div class="hotel-card__stats">
+            <div class="stat">
+              <i class="fa-solid fa-calendar-check"></i>
+              <span><strong>{{ hotel.totalBookings | number }}</strong> total bookings</span>
+            </div>
+            <div class="stat">
+              <i class="fa-solid fa-ban"></i>
+              <span><strong>{{ hotel.cancellationRate }}%</strong> cancellation rate</span>
+            </div>
+          </div>
+
+          <div class="hotel-card__footer">
+            <div class="hotel-card__price">
+              <span class="hotel-card__amount">${{ hotel.avgAdr | number:'1.0-0' }}</span>
+              <span class="hotel-card__per">avg / night</span>
+            </div>
+            <button class="btn btn--primary btn--sm" (click)="viewDetails(hotel, i)">
+              View Details
+            </button>
+          </div>
+        </div>
+
+      </article>
+    </div>
+
+  </section>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <i class="fa-solid fa-paper-plane"></i> TripFlow
+    </div>
+    <p class="footer__copy">&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__socials">
+      <a href="#" title="Facebook" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#" title="Twitter" aria-label="Twitter"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#" title="Instagram" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>

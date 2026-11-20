@@ -1,0 +1,62 @@
+<div class="ai-chat">
+
+  <!-- Header -->
+  <div class="ai-chat__header">
+    <div class="ai-chat__avatar">
+      <i class="fa-solid fa-robot"></i>
+    </div>
+    <div>
+      <strong>TripFlow AI</strong>
+      <span class="ai-chat__status">{{ loading ? 'typing…' : 'online' }}</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="ai-chat__messages" #msgList>
+    <div
+      *ngFor="let msg of messages"
+      class="ai-chat__row"
+      [class.ai-chat__row--user]="msg.from === 'user'"
+      [class.ai-chat__row--bot]="msg.from === 'bot'"
+    >
+      <div class="ai-chat__icon" *ngIf="msg.from === 'bot'">
+        <i class="fa-solid fa-robot"></i>
+      </div>
+      <div
+        class="ai-chat__bubble"
+        [class.ai-chat__bubble--user]="msg.from === 'user'"
+        [class.ai-chat__bubble--bot]="msg.from === 'bot'"
+      >{{ msg.text }}</div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="ai-chat__row ai-chat__row--bot" *ngIf="loading">
+      <div class="ai-chat__icon"><i class="fa-solid fa-robot"></i></div>
+      <div class="ai-chat__bubble ai-chat__bubble--bot ai-chat__typing">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="ai-chat__input-row">
+    <input
+      class="ai-chat__input"
+      type="text"
+      placeholder="Ask me anything…"
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      [disabled]="loading"
+      aria-label="Chat message"
+    />
+    <button
+      class="ai-chat__send"
+      (click)="send()"
+      [disabled]="loading || !userInput.trim()"
+      aria-label="Send message"
+    >
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+
+</div>

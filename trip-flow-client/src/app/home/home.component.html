@@ -1,0 +1,212 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAVBAR                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="navbar">
+  <div class="navbar__container">
+    <!-- Logo -->
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+
+    <!-- Mobile menu toggle -->
+    <button
+      class="navbar__toggle"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen"
+      aria-label="Toggle navigation"
+    >
+      <i [class]="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
+
+    <!-- Navigation links -->
+    <nav class="navbar__nav" [class.navbar__nav--open]="menuOpen">
+      <a class="navbar__link navbar__link--active" routerLink="/" (click)="closeMenu()">Home</a>
+      <a class="navbar__link" routerLink="/hotel-results" (click)="closeMenu()">Destinations</a>
+      <a class="navbar__link" routerLink="/profile" (click)="closeMenu()">Profile</a>
+      <a class="btn btn--primary navbar__sign-in" routerLink="/login" (click)="closeMenu()">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO SECTION                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__overlay"></div>
+
+  <div class="hero__content">
+    <h1 class="hero__title">Plan Your Perfect Trip</h1>
+    <p class="hero__subtitle">Explore the world with ease</p>
+
+    <!-- Search box -->
+    <div class="hero__search">
+      <div class="hero__search-field">
+        <i class="fa-solid fa-location-dot"></i>
+        <input
+          type="text"
+          placeholder="Where to?"
+          [(ngModel)]="destination"
+        />
+      </div>
+
+      <div class="hero__search-field">
+        <i class="fa-regular fa-calendar"></i>
+        <input type="date" placeholder="Check-in" [(ngModel)]="checkIn" />
+      </div>
+
+      <div class="hero__search-field">
+        <i class="fa-regular fa-calendar-check"></i>
+        <input type="date" placeholder="Check-out" [(ngModel)]="checkOut" />
+      </div>
+
+      <div class="hero__search-field">
+        <i class="fa-solid fa-wallet"></i>
+        <select [(ngModel)]="budget" aria-label="Budget" title="Budget">
+          <option value="" disabled selected>Budget</option>
+          <option value="low">$0 – $500</option>
+          <option value="mid">$500 – $1 500</option>
+          <option value="high">$1 500 – $3 000</option>
+          <option value="luxury">$3 000+</option>
+        </select>
+      </div>
+
+      <button class="btn btn--primary hero__search-btn" (click)="search()">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        Search
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT — 3-column layout                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<main class="content" id="destinations">
+  <!-- ───── LEFT: Popular Destinations ───── -->
+  <section class="content__col content__col--left">
+    <h2 class="section-title">
+      <i class="fa-solid fa-earth-americas"></i>
+      Popular Destinations
+    </h2>
+
+    <div class="destinations">
+      <a
+        *ngFor="let dest of destinations"
+        class="dest-card"
+        [style.backgroundImage]="'url(' + dest.image + ')'"
+        [routerLink]="['/hotel-results']"
+        [queryParams]="{destination: dest.name}"
+        style="cursor:pointer"
+      >
+        <div class="dest-card__overlay">
+          <h3 class="dest-card__name">{{ dest.name }}</h3>
+          <span class="dest-card__tag">{{ dest.tag }}</span>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- ───── CENTER: Special Offers ───── -->
+  <section class="content__col content__col--center" id="deals">
+    <h2 class="section-title">
+      <i class="fa-solid fa-tags"></i>
+      Special Offers
+    </h2>
+
+    <div class="offer-card">
+      <div class="offer-card__image">
+        <img
+          src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&q=80"
+          alt="Summer beach promo"
+          loading="lazy"
+        />
+        <span class="offer-card__badge">Limited Time</span>
+      </div>
+
+      <div class="offer-card__body">
+        <h3 class="offer-card__title">Summer Getaway&nbsp;– Up to 30% Off</h3>
+        <p class="offer-card__text">
+          Escape to paradise with our exclusive summer deals. Book your dream
+          beach vacation today and save big on flights, hotels, and activities.
+        </p>
+        <button class="btn btn--primary">Book Now</button>
+      </div>
+    </div>
+
+    <!-- Extra small offer cards -->
+    <div class="mini-offers">
+      <div class="mini-offer" *ngFor="let offer of miniOffers">
+        <i [class]="offer.icon"></i>
+        <div>
+          <strong>{{ offer.title }}</strong>
+          <span>{{ offer.desc }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───── RIGHT: Why Choose TripFlow? ───── -->
+  <section class="content__col content__col--right">
+    <h2 class="section-title">
+      <i class="fa-solid fa-circle-check"></i>
+      Why Choose TripFlow?
+    </h2>
+
+    <div class="why-cards">
+      <div class="why-card" *ngFor="let reason of reasons">
+        <div class="why-card__icon">
+          <i [class]="reason.icon"></i>
+        </div>
+        <h4 class="why-card__title">{{ reason.title }}</h4>
+        <p class="why-card__text">{{ reason.text }}</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand">
+      <i class="fa-solid fa-paper-plane"></i> TripFlow
+    </div>
+    <p class="footer__copy">&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__socials">
+      <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT BUTTON                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="chatbot" [class.chatbot--open]="chatOpen && chatMode === 'chat'">
+  <button
+    class="chatbot__btn"
+    (click)="chatOpen = !chatOpen; chatMode = 'preview'"
+    aria-label="Chat with us"
+  >
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <!-- Preview state -->
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header">
+        <i class="fa-solid fa-headset"></i>
+        Need Help?
+      </div>
+      <div class="chatbot__body">
+        <p>Chat with us! Our AI travel assistant is available 24/7 to help you plan your perfect trip.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <!-- Chat state -->
+    <app-ai-chat *ngIf="chatMode === 'chat'"></app-ai-chat>
+  </div>
+</div>

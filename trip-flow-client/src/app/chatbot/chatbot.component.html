@@ -1,0 +1,65 @@
+<div class="chat-container">
+
+  <!-- Header -->
+  <div class="chat-header">
+    <div class="bot-avatar">🏨</div>
+    <div>
+      <strong>TripFlow Assistant</strong>
+      <span class="status">{{ loading ? 'typing...' : 'online' }}</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="chat-messages" #messageList>
+    <div *ngFor="let msg of messages"
+         class="message-row"
+         [class.user-row]="msg.from === 'user'"
+         [class.bot-row]="msg.from === 'bot'">
+
+      <div class="avatar" *ngIf="msg.from === 'bot'">🏨</div>
+
+      <div class="bubble" [class.user-bubble]="msg.from === 'user'" [class.bot-bubble]="msg.from === 'bot'">
+        <p>{{ msg.text }}</p>
+
+        <!-- Hotel result cards inside the bubble -->
+        <div class="result-cards" *ngIf="msg.results && msg.results.length > 0">
+          <div class="hotel-card" *ngFor="let r of msg.results">
+            <div class="hotel-card-title">{{ r.hotelName }}</div>
+            <div class="hotel-card-info">
+              <span>📍 {{ r.country }}</span>
+              <span>🛏 Room {{ r.roomType }}</span>
+              <span>💵 ${{ r.averageDailyRate | number:'1.2-2' }}/night</span>
+              <span class="match-count">{{ r.matchCount }} match(es)</span>
+            </div>
+            <button class="btn-book" (click)="bookNow(r)">Book Now</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="message-row bot-row" *ngIf="loading">
+      <div class="avatar">🏨</div>
+      <div class="bubble bot-bubble typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="chat-input-row">
+    <input
+      type="text"
+      [(ngModel)]="userInput"
+      (keydown)="onKeyDown($event)"
+      [disabled]="loading"
+      placeholder='Type "start" to begin...'
+      class="chat-input"
+    />
+    <button class="btn-send" (click)="send()" [disabled]="loading || !userInput.trim()">
+      Send
+    </button>
+  </div>
+
+</div>

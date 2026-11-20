@@ -1,0 +1,133 @@
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- REGISTER PAGE                                          -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="auth-page">
+
+  <!-- Background -->
+  <div class="auth-page__bg"></div>
+
+  <!-- Brand bar -->
+  <header class="brand-bar">
+    <a class="brand-bar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+    <a class="brand-bar__home" routerLink="/">
+      <i class="fa-solid fa-arrow-left"></i> Back to Home
+    </a>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- REGISTER CARD                                      -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="auth-card">
+
+    <!-- Illustration icon -->
+    <div class="auth-card__icon">
+      <i class="fa-solid fa-user-plus"></i>
+    </div>
+
+    <h2 class="auth-card__title">Create Your Account</h2>
+    <p class="auth-card__subtitle">Join TripFlow and start exploring the world</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onRegister()" autocomplete="on">
+
+      <!-- Full Name -->
+      <div class="form-field" [class.form-field--error]="f['fullName'].touched && f['fullName'].invalid">
+        <label for="regName">Full Name</label>
+        <div class="form-field__wrap">
+          <i class="fa-solid fa-user"></i>
+          <input id="regName" type="text" formControlName="fullName" placeholder="John Doe" autocomplete="name" />
+        </div>
+        <span class="form-field__error" *ngIf="f['fullName'].touched && f['fullName'].errors?.['required']">Full name is required.</span>
+        <span class="form-field__error" *ngIf="f['fullName'].touched && f['fullName'].errors?.['minlength']">At least 3 characters.</span>
+      </div>
+
+      <!-- Email -->
+      <div class="form-field" [class.form-field--error]="f['email'].touched && f['email'].invalid">
+        <label for="regEmail">Email Address</label>
+        <div class="form-field__wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input id="regEmail" type="email" formControlName="email" placeholder="you&#64;example.com" autocomplete="email" />
+        </div>
+        <span class="form-field__error" *ngIf="f['email'].touched && f['email'].errors?.['required']">Email is required.</span>
+        <span class="form-field__error" *ngIf="f['email'].touched && f['email'].errors?.['email']">Please enter a valid email.</span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-field" [class.form-field--error]="f['password'].touched && f['password'].invalid">
+        <label for="regPassword">Password</label>
+        <div class="form-field__wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input
+            id="regPassword"
+            [type]="passwordVisible ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Min. 8 characters"
+            autocomplete="new-password"
+          />
+          <button type="button" class="form-field__toggle" (click)="togglePassword()">
+            <i [class]="passwordVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
+        <span class="form-field__error" *ngIf="f['password'].touched && f['password'].errors?.['required']">Password is required.</span>
+        <span class="form-field__error" *ngIf="f['password'].touched && f['password'].errors?.['minlength']">At least 8 characters required.</span>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-field" [class.form-field--error]="f['confirmPassword'].touched && (f['confirmPassword'].invalid || registerForm.errors?.['passwordsMismatch'])">
+        <label for="regConfirm">Confirm Password</label>
+        <div class="form-field__wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input
+            id="regConfirm"
+            [type]="confirmPasswordVisible ? 'text' : 'password'"
+            formControlName="confirmPassword"
+            placeholder="Re-enter password"
+            autocomplete="new-password"
+          />
+          <button type="button" class="form-field__toggle" (click)="toggleConfirmPassword()">
+            <i [class]="confirmPasswordVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+          </button>
+        </div>
+        <span class="form-field__error" *ngIf="f['confirmPassword'].touched && f['confirmPassword'].errors?.['required']">Please confirm your password.</span>
+        <span class="form-field__error" *ngIf="f['confirmPassword'].touched && registerForm.errors?.['passwordsMismatch']">Passwords do not match.</span>
+      </div>
+
+      <!-- Submit -->
+      <button type="submit" class="btn btn--primary btn--block">
+        <i class="fa-solid fa-user-plus"></i> Register
+      </button>
+    </form>
+
+    <p class="auth-card__terms">
+      By creating an account, you agree to our
+      <a href="#">Terms of Service</a> and
+      <a href="#">Privacy Policy</a>.
+    </p>
+
+    <p class="auth-card__switch">
+      Already have an account?
+      <a class="link-btn" routerLink="/login">Log in here</a>
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT                                       -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="chatbot">
+  <button class="chatbot__btn" (click)="chatOpen = !chatOpen; chatMode = 'preview'" aria-label="Chat with us">
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header"><i class="fa-solid fa-headset"></i> Need Help?</div>
+      <div class="chatbot__body">
+        <p>Chat with our AI travel assistant — available 24/7 to help you.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <app-ai-chat *ngIf="chatMode === 'chat'"></app-ai-chat>
+  </div>
+</div>

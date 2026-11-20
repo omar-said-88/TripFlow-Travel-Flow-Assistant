@@ -1,0 +1,302 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAVBAR                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="navbar">
+  <div class="navbar__container">
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+
+    <button class="navbar__toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">
+      <i [class]="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
+
+    <nav class="navbar__nav" [class.navbar__nav--open]="menuOpen">
+      <a class="navbar__link" routerLink="/" (click)="closeMenu()">Home</a>
+      <a class="navbar__link" routerLink="/hotel-results" (click)="closeMenu()">Destinations</a>
+      <a class="navbar__link" routerLink="/profile" (click)="closeMenu()">Profile</a>
+      <a class="btn btn--primary navbar__sign-in" routerLink="/login" (click)="closeMenu()">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PAGE TITLE & PROGRESS                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="page-header">
+  <div class="page-header__inner">
+    <h1 class="page-header__title">Complete Your Booking</h1>
+
+    <!-- Progress steps -->
+    <div class="stepper">
+      <div
+        class="stepper__step"
+        *ngFor="let step of steps"
+        [class.stepper__step--active]="step.number === currentStep"
+        [class.stepper__step--done]="step.number < currentStep"
+      >
+        <div class="stepper__circle">
+          <span *ngIf="step.number >= currentStep">{{ step.number }}</span>
+          <i class="fa-solid fa-check" *ngIf="step.number < currentStep"></i>
+        </div>
+        <span class="stepper__label">{{ step.label }}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN LAYOUT — two columns                                  -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<main class="checkout-layout">
+
+  <!-- ────────────────────────────────────────── -->
+  <!-- LEFT SIDE                                  -->
+  <!-- ────────────────────────────────────────── -->
+  <div class="checkout-left">
+
+    <!-- Hotel summary card -->
+    <div class="hotel-summary">
+      <div class="hotel-summary__image">
+        <img [src]="hotel.image" [alt]="hotel.name" loading="lazy" />
+      </div>
+      <div class="hotel-summary__info">
+        <h2 class="hotel-summary__name">{{ hotel.name }}</h2>
+        <div class="hotel-summary__stars">
+          <i class="fa-solid fa-star" *ngFor="let _ of starsArray(hotel.stars)"></i>
+          <i class="fa-regular fa-star" *ngFor="let _ of emptyStars(hotel.stars)"></i>
+          <span class="hotel-summary__reviews">{{ hotel.reviewCount | number }} reviews</span>
+        </div>
+        <div class="hotel-summary__rating">
+          <span class="hotel-summary__score">{{ hotel.ratingScore }}</span>
+          <span class="hotel-summary__rating-label">{{ hotel.ratingLabel }}</span>
+        </div>
+        <p class="hotel-summary__location">
+          <i class="fa-solid fa-location-dot"></i>
+          {{ hotel.location }}
+        </p>
+      </div>
+    </div>
+
+    <!-- ── Guest Details Form ── -->
+    <div class="form-card">
+      <h2 class="form-card__title">
+        <i class="fa-solid fa-user"></i> Guest Details
+      </h2>
+
+      <form [formGroup]="guestForm" autocomplete="on">
+        <!-- Full Name -->
+        <div class="form-field" [class.form-field--error]="f['fullName'].touched && f['fullName'].invalid">
+          <label for="fullName">Full Name</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-user"></i>
+            <input id="fullName" type="text" formControlName="fullName" placeholder="John Doe" autocomplete="name" />
+          </div>
+          <span class="form-field__error" *ngIf="f['fullName'].touched && f['fullName'].errors?.['required']">
+            Full name is required.
+          </span>
+          <span class="form-field__error" *ngIf="f['fullName'].touched && f['fullName'].errors?.['minlength']">
+            Name must be at least 3 characters.
+          </span>
+        </div>
+
+        <!-- Email -->
+        <div class="form-field" [class.form-field--error]="f['email'].touched && f['email'].invalid">
+          <label for="email">Email Address</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-envelope"></i>
+            <input id="email" type="email" formControlName="email" placeholder="john@example.com" autocomplete="email" />
+          </div>
+          <span class="form-field__error" *ngIf="f['email'].touched && f['email'].errors?.['required']">
+            Email is required.
+          </span>
+          <span class="form-field__error" *ngIf="f['email'].touched && f['email'].errors?.['email']">
+            Please enter a valid email address.
+          </span>
+        </div>
+
+        <!-- Phone -->
+        <div class="form-field" [class.form-field--error]="f['phone'].touched && f['phone'].invalid">
+          <label for="phone">Phone Number</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-phone"></i>
+            <input id="phone" type="tel" formControlName="phone" placeholder="+971 50 123 4567" autocomplete="tel" />
+          </div>
+          <span class="form-field__error" *ngIf="f['phone'].touched && f['phone'].errors?.['required']">
+            Phone number is required.
+          </span>
+          <span class="form-field__error" *ngIf="f['phone'].touched && f['phone'].errors?.['pattern']">
+            Please enter a valid phone number.
+          </span>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── Billing Address Form ── -->
+    <div class="form-card">
+      <h2 class="form-card__title">
+        <i class="fa-solid fa-file-invoice"></i> Billing Address
+      </h2>
+
+      <form [formGroup]="billingForm" autocomplete="on">
+        <!-- Street -->
+        <div class="form-field" [class.form-field--error]="b['street'].touched && b['street'].invalid">
+          <label for="street">Street Address</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-house"></i>
+            <input id="street" type="text" formControlName="street" placeholder="123 Main Street" autocomplete="street-address" />
+          </div>
+          <span class="form-field__error" *ngIf="b['street'].touched && b['street'].errors?.['required']">
+            Street address is required.
+          </span>
+        </div>
+
+        <!-- City -->
+        <div class="form-field" [class.form-field--error]="b['city'].touched && b['city'].invalid">
+          <label for="city">City</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-city"></i>
+            <input id="city" type="text" formControlName="city" placeholder="Dubai" autocomplete="address-level2" />
+          </div>
+          <span class="form-field__error" *ngIf="b['city'].touched && b['city'].errors?.['required']">
+            City is required.
+          </span>
+        </div>
+
+        <!-- Country -->
+        <div class="form-field" [class.form-field--error]="b['country'].touched && b['country'].invalid">
+          <label for="country">Country</label>
+          <div class="form-field__input-wrap">
+            <i class="fa-solid fa-globe"></i>
+            <select id="country" formControlName="country" autocomplete="country-name">
+              <option value="" disabled>Select a country</option>
+              <option *ngFor="let c of countries" [value]="c">{{ c }}</option>
+            </select>
+          </div>
+          <span class="form-field__error" *ngIf="b['country'].touched && b['country'].errors?.['required']">
+            Please select a country.
+          </span>
+        </div>
+
+        <!-- Save info checkbox -->
+        <label class="checkbox-field">
+          <input type="checkbox" formControlName="saveInfo" />
+          <span class="checkbox-field__box"></span>
+          <span class="checkbox-field__label">Save this information for next time</span>
+        </label>
+      </form>
+    </div>
+  </div>
+
+  <!-- ────────────────────────────────────────── -->
+  <!-- RIGHT SIDE — Booking Summary               -->
+  <!-- ────────────────────────────────────────── -->
+  <aside class="summary-card">
+    <div class="summary-card__sticky">
+      <h2 class="summary-card__title">
+        <i class="fa-solid fa-receipt"></i> Booking Summary
+      </h2>
+
+      <!-- Dates & Room -->
+      <div class="summary-row summary-row--highlight">
+        <div class="summary-row__item">
+          <span class="summary-row__label">Check-in</span>
+          <strong>{{ booking.checkIn }}</strong>
+        </div>
+        <div class="summary-row__divider">
+          <i class="fa-solid fa-arrow-right"></i>
+        </div>
+        <div class="summary-row__item">
+          <span class="summary-row__label">Check-out</span>
+          <strong>{{ booking.checkOut }}</strong>
+        </div>
+      </div>
+
+      <div class="summary-info">
+        <span><i class="fa-solid fa-moon"></i> {{ booking.nights }} night{{ booking.nights > 1 ? 's' : '' }}</span>
+        <span><i class="fa-solid fa-door-open"></i> {{ booking.rooms }} room</span>
+        <span><i class="fa-solid fa-user-group"></i> {{ booking.adults }} adult{{ booking.adults > 1 ? 's' : '' }}</span>
+      </div>
+
+      <div class="summary-card__divider"></div>
+
+      <!-- Price breakdown -->
+      <div class="price-line">
+        <span>{{ booking.nights }} nights &times; ${{ booking.pricePerNight }}</span>
+        <span>${{ subtotal }}</span>
+      </div>
+      <div class="price-line">
+        <span>Taxes &amp; Fees</span>
+        <span>${{ taxes }}</span>
+      </div>
+
+      <div class="summary-card__divider"></div>
+
+      <div class="price-line price-line--total">
+        <span>Total</span>
+        <span>${{ total }}</span>
+      </div>
+
+      <button class="btn btn--primary btn--block summary-card__cta" (click)="continueToPayment()">
+        <i class="fa-solid fa-lock"></i>
+        Continue to Payment
+      </button>
+
+      <p class="summary-card__cancel">
+        <i class="fa-solid fa-shield-halved"></i>
+        Free cancellation before May 8, 2026
+      </p>
+
+      <!-- Trust badges -->
+      <div class="trust-badges">
+        <div class="trust-badge">
+          <i class="fa-solid fa-lock"></i>
+          <span>Secure Payment</span>
+        </div>
+        <div class="trust-badge">
+          <i class="fa-solid fa-clock-rotate-left"></i>
+          <span>Instant Confirmation</span>
+        </div>
+        <div class="trust-badge">
+          <i class="fa-solid fa-headset"></i>
+          <span>24/7 Support</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand"><i class="fa-solid fa-paper-plane"></i> TripFlow</div>
+    <p class="footer__copy">&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__socials">
+      <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="chatbot">
+  <button class="chatbot__btn" (click)="chatOpen = !chatOpen; chatMode = 'preview'" aria-label="Chat with us">
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header"><i class="fa-solid fa-headset"></i> Need Help?</div>
+      <div class="chatbot__body">
+        <p>Chat with our AI travel assistant — available 24/7 to help you complete your booking.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <app-ai-chat *ngIf="chatMode === 'chat'"></app-ai-chat>
+  </div>
+</div>

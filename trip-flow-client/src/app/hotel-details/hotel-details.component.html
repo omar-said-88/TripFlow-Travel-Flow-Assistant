@@ -1,0 +1,343 @@
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HEADER / NAVBAR                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<header class="navbar">
+  <div class="navbar__container">
+    <a class="navbar__logo" routerLink="/">
+      <i class="fa-solid fa-paper-plane"></i>
+      <span>TripFlow</span>
+    </a>
+
+    <button class="navbar__toggle" (click)="toggleMenu()" [attr.aria-expanded]="menuOpen" aria-label="Toggle navigation">
+      <i [class]="menuOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-bars'"></i>
+    </button>
+
+    <nav class="navbar__nav" [class.navbar__nav--open]="menuOpen">
+      <a class="navbar__link" routerLink="/" (click)="closeMenu()">Home</a>
+      <a class="navbar__link" routerLink="/hotel-results" (click)="closeMenu()">Destinations</a>
+      <a class="navbar__link" routerLink="/profile" (click)="closeMenu()">Profile</a>
+      <a class="btn btn--primary navbar__sign-in" routerLink="/login" (click)="closeMenu()">Sign In</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- BREADCRUMB                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<nav class="breadcrumb" aria-label="breadcrumb">
+  <div class="breadcrumb__inner">
+    <a routerLink="/">Home</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <a routerLink="/hotel-results">Dubai Hotels</a>
+    <i class="fa-solid fa-chevron-right"></i>
+    <span>{{ hotel.name }}</span>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- IMAGE GALLERY                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<section class="gallery">
+  <!-- Thumbnails row -->
+  <div class="gallery__thumbs">
+    <button
+      class="gallery__thumb"
+      *ngFor="let img of hotel.images; let i = index"
+      [class.gallery__thumb--active]="i === selectedImageIndex"
+      (click)="selectImage(i)"
+    >
+      <img [src]="img.url" [alt]="img.alt" [title]="img.alt || hotel.name" loading="lazy" />
+    </button>
+  </div>
+
+  <!-- Main image -->
+  <div class="gallery__main">
+    <img
+      [src]="hotel.images[selectedImageIndex].url"
+      [alt]="hotel.images[selectedImageIndex].alt"
+      [title]="hotel.images[selectedImageIndex].alt || hotel.name"
+    />
+    <div class="gallery__nav">
+      <button (click)="selectImage(selectedImageIndex > 0 ? selectedImageIndex - 1 : hotel.images.length - 1)">
+        <i class="fa-solid fa-chevron-left"></i>
+      </button>
+      <span>{{ selectedImageIndex + 1 }} / {{ hotel.images.length }}</span>
+      <button (click)="selectImage(selectedImageIndex < hotel.images.length - 1 ? selectedImageIndex + 1 : 0)">
+        <i class="fa-solid fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- MAIN CONTENT (details + sidebar)                          -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<main class="detail-layout">
+
+  <!-- ── LEFT: Hotel Info ── -->
+  <div class="detail-content">
+
+    <!-- Title section -->
+    <div class="hotel-header">
+      <div class="hotel-header__top">
+        <h1 class="hotel-header__name">{{ hotel.name }}</h1>
+        <div class="hotel-header__stars">
+          <i class="fa-solid fa-star" *ngFor="let _ of starsArray(hotel.stars)"></i>
+          <i class="fa-regular fa-star" *ngFor="let _ of emptyStars(hotel.stars)"></i>
+        </div>
+      </div>
+
+      <div class="hotel-header__meta">
+        <span class="hotel-header__score">{{ hotel.ratingScore }}</span>
+        <div class="hotel-header__rating-text">
+          <strong>{{ hotel.ratingLabel }}</strong>
+          <span>{{ hotel.reviewCount | number }} reviews</span>
+        </div>
+        <span class="hotel-header__divider">|</span>
+        <span class="hotel-header__location">
+          <i class="fa-solid fa-location-dot"></i>
+          {{ hotel.location }}
+        </span>
+        <a [href]="hotel.mapUrl" target="_blank" rel="noopener" class="hotel-header__map-link">
+          <i class="fa-solid fa-map"></i> View on map
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══════ TABS ═══════ -->
+    <div class="tabs">
+      <div class="tabs__nav">
+        <button
+          *ngFor="let tab of tabs"
+          class="tabs__btn"
+          [class.tabs__btn--active]="activeTab === tab.id"
+          (click)="switchTab(tab.id)"
+        >
+          <i [class]="tab.icon"></i>
+          {{ tab.label }}
+        </button>
+      </div>
+
+      <div class="tabs__body">
+
+        <!-- ── Overview ── -->
+        <div class="tab-panel" *ngIf="activeTab === 'overview'">
+          <h2 class="tab-panel__title">About This Property</h2>
+          <p class="tab-panel__desc">{{ hotel.description }}</p>
+
+          <h3 class="tab-panel__subtitle">Highlights</h3>
+          <ul class="highlights">
+            <li *ngFor="let h of hotel.highlights">
+              <i class="fa-solid fa-circle-check"></i>
+              {{ h }}
+            </li>
+          </ul>
+        </div>
+
+        <!-- ── Amenities ── -->
+        <div class="tab-panel" *ngIf="activeTab === 'amenities'">
+          <h2 class="tab-panel__title">Amenities</h2>
+          <div class="amenities-grid">
+            <div class="amenity" *ngFor="let a of hotel.amenities">
+              <div class="amenity__icon"><i [class]="a.icon"></i></div>
+              <span>{{ a.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Rooms ── -->
+        <div class="tab-panel" *ngIf="activeTab === 'rooms'">
+          <h2 class="tab-panel__title">Available Rooms</h2>
+          <div class="room-cards">
+            <div class="room-card" *ngFor="let room of hotel.rooms">
+              <div class="room-card__image">
+                <img [src]="room.image" [alt]="room.name" [title]="room.name" loading="lazy" />
+              </div>
+              <div class="room-card__body">
+                <h3 class="room-card__name">{{ room.name }}</h3>
+                <div class="room-card__specs">
+                  <span><i class="fa-solid fa-ruler-combined"></i> {{ room.size }}</span>
+                  <span><i class="fa-solid fa-bed"></i> {{ room.beds }}</span>
+                  <span><i class="fa-solid fa-user"></i> Up to {{ room.guests }} guests</span>
+                </div>
+                <div class="room-card__perks">
+                  <span *ngFor="let p of room.perks">
+                    <i class="fa-solid fa-circle-check"></i> {{ p }}
+                  </span>
+                </div>
+                <div class="room-card__footer">
+                  <div class="room-card__price">
+                    <span class="room-card__amount">${{ room.price }}</span>
+                    <span class="room-card__per">/ night</span>
+                  </div>
+                  <button class="btn btn--primary btn--sm">Select Room</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Reviews ── -->
+        <div class="tab-panel" *ngIf="activeTab === 'reviews'">
+          <h2 class="tab-panel__title">Guest Reviews</h2>
+
+          <div class="reviews-summary">
+            <div class="reviews-summary__score">
+              <span class="reviews-summary__number">{{ hotel.ratingScore }}</span>
+              <span class="reviews-summary__label">{{ hotel.ratingLabel }}</span>
+              <span class="reviews-summary__count">{{ hotel.reviewCount | number }} reviews</span>
+            </div>
+            <div class="reviews-summary__bars">
+              <div class="rating-bar" *ngFor="let cat of hotel.reviewCategories">
+                <span class="rating-bar__label">{{ cat.label }}</span>
+                <div class="rating-bar__track">
+                  <div class="rating-bar__fill" [style.width]="ratingBarWidth(cat.score)"></div>
+                </div>
+                <span class="rating-bar__score">{{ cat.score }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="review-list">
+            <div class="review" *ngFor="let r of hotel.reviews">
+              <div class="review__avatar">{{ r.avatar }}</div>
+              <div class="review__body">
+                <div class="review__header">
+                  <strong>{{ r.author }}</strong>
+                  <span class="review__date">{{ r.date }}</span>
+                </div>
+                <div class="review__stars">
+                  <i class="fa-solid fa-star" *ngFor="let _ of starsArray(r.rating)"></i>
+                  <i class="fa-regular fa-star" *ngFor="let _ of emptyStars(r.rating)"></i>
+                </div>
+                <h4 class="review__title">{{ r.title }}</h4>
+                <p class="review__text">{{ r.text }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Location ── -->
+        <div class="tab-panel" *ngIf="activeTab === 'location'">
+          <h2 class="tab-panel__title">Location</h2>
+          <div class="location-card">
+            <div class="location-card__map">
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3613.168505642546!2d55.1170291!3d25.1306032!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f43496ad9c645%3A0xbde66e2bf1fd906f!2sAtlantis%20The%20Palm!5e0!3m2!1sen!2sae!4v1690000000000"
+                width="100%" height="350" style="border:0; border-radius: 10px;" allowfullscreen loading="lazy">
+              </iframe>
+            </div>
+            <div class="location-card__info">
+              <h3><i class="fa-solid fa-location-dot"></i> {{ hotel.location }}</h3>
+              <ul>
+                <li><i class="fa-solid fa-plane"></i> 35 min from Dubai International Airport</li>
+                <li><i class="fa-solid fa-building"></i> 20 min from Dubai Mall</li>
+                <li><i class="fa-solid fa-umbrella-beach"></i> Direct beach access</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RIGHT: Booking Sidebar ── -->
+  <aside class="booking-card">
+    <div class="booking-card__sticky">
+      <h2 class="booking-card__title">
+        <i class="fa-solid fa-calendar-check"></i> Your Stay
+      </h2>
+
+      <div class="booking-card__field">
+        <label>Check-in</label>
+        <input type="date" [(ngModel)]="checkIn" title="Select check-in date" />
+      </div>
+
+      <div class="booking-card__field">
+        <label>Check-out</label>
+        <input type="date" [(ngModel)]="checkOut" title="Select check-out date" />
+      </div>
+
+      <div class="booking-card__row">
+        <div class="booking-card__field booking-card__field--half">
+          <label>Rooms</label>
+          <select [(ngModel)]="roomCount" title="Select number of rooms">
+            <option [value]="1">1 Room</option>
+            <option [value]="2">2 Rooms</option>
+            <option [value]="3">3 Rooms</option>
+          </select>
+        </div>
+        <div class="booking-card__field booking-card__field--half">
+          <label>Guests</label>
+          <select [(ngModel)]="adultCount" title="Select number of guests">
+            <option [value]="1">1 Adult</option>
+            <option [value]="2">2 Adults</option>
+            <option [value]="3">3 Adults</option>
+            <option [value]="4">4 Adults</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="booking-card__divider"></div>
+
+      <div class="booking-card__price-row">
+        <span>Price per night</span>
+        <div>
+          <span class="booking-card__old-price" *ngIf="hotel.oldPrice">${{ hotel.oldPrice }}</span>
+          <span class="booking-card__price">${{ hotel.pricePerNight }}</span>
+        </div>
+      </div>
+
+      <div class="booking-card__price-row">
+        <span>{{ nightCount }} night{{ nightCount > 1 ? 's' : '' }}</span>
+        <span class="booking-card__total">${{ totalPrice }}</span>
+      </div>
+
+      <p class="booking-card__tax">Including taxes &amp; fees</p>
+
+      <button class="btn btn--primary btn--block booking-card__cta">
+        <i class="fa-solid fa-lock"></i> Book Now
+      </button>
+
+      <p class="booking-card__note">
+        <i class="fa-solid fa-shield-halved"></i>
+        Free cancellation before May 8, 2026
+      </p>
+    </div>
+  </aside>
+</main>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FOOTER                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__brand"><i class="fa-solid fa-paper-plane"></i> TripFlow</div>
+    <p class="footer__copy">&copy; {{ currentYear }} TripFlow. All rights reserved.</p>
+    <div class="footer__socials">
+      <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+      <a href="#"><i class="fa-brands fa-twitter"></i></a>
+      <a href="#"><i class="fa-brands fa-instagram"></i></a>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- FLOATING CHATBOT                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="chatbot">
+  <button class="chatbot__btn" (click)="chatOpen = !chatOpen; chatMode = 'preview'" aria-label="Chat with us">
+    <i [class]="chatOpen ? 'fa-solid fa-xmark' : 'fa-solid fa-comments'"></i>
+  </button>
+  <div class="chatbot__popup" [class.chatbot__popup--chat]="chatMode === 'chat'" *ngIf="chatOpen">
+    <ng-container *ngIf="chatMode === 'preview'">
+      <div class="chatbot__header"><i class="fa-solid fa-headset"></i> Need Help?</div>
+      <div class="chatbot__body">
+        <p>Chat with our AI travel assistant — available 24/7 to help you book the perfect stay.</p>
+        <button class="btn btn--primary btn--block" (click)="chatMode = 'chat'">Start Chat</button>
+      </div>
+    </ng-container>
+    <app-ai-chat *ngIf="chatMode === 'chat'" [pageContext]="hotelContext"></app-ai-chat>
+  </div>
+</div>
